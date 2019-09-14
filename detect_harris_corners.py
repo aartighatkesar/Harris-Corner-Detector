@@ -184,7 +184,7 @@ def adaptive_non_maximal_suppression():
     pass
 
 
-def run_main(img_path, dest_img_path, nms_kernel_size, sigma, k=0.06, thresh=0.75, max_no_corners=-1):
+def detect_corners(img_path, dest_img_path, nms_kernel_size, sigma, k=0.06, thresh=0.75, max_no_corners=-1):
 
     # Load image
     img_bgr = load_image_gray(img_path)
@@ -199,8 +199,11 @@ def run_main(img_path, dest_img_path, nms_kernel_size, sigma, k=0.06, thresh=0.7
     # Retain "max_no_corners"
     corners = get_max_corners(nms_corner_resp, max_no_corners)
 
-    # Plot corners on image
-    plot_corners(img_bgr, corners, dest_img_path)
+    if dest_img_path:
+        # Plot corners on image
+        plot_corners(img_bgr, corners, dest_img_path)
+
+    return corners
 
 
 if __name__ == "__main__":
@@ -232,7 +235,7 @@ if __name__ == "__main__":
 
         for sigma in lst_sigma:
             dest_img_path = os.path.join(res_img, 'sigma_{}_no_c_{}.jpg'.format(sigma, '{}'))
-            run_main(img_path, dest_img_path, nms_kernel_size, sigma, k, thresh, max_no_corners)
+            detect_corners(img_path, dest_img_path, nms_kernel_size, sigma, k, thresh, max_no_corners)
 
 
 
