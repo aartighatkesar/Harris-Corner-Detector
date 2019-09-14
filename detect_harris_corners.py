@@ -1,12 +1,18 @@
 import numpy as np
 import cv2
 from scipy.signal import convolve2d
-import matplotlib.pyplot as plt
-
+import os
+import shutil
 
 def load_image_gray(img_path):
 
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+
+    h, w, _ = img.shape
+
+    if h > 600 or w > 800:
+        print("resizing image to 800 x 600")
+        img = cv2.resize(img, (600, 800))
 
     return img
 
@@ -33,6 +39,13 @@ def create_Haar_wavelet_xy(sigma):
 
 
 def compute_derivatives(img, filter_x, filter_y):
+    """
+
+    :param img:
+    :param filter_x: x derivative filter
+    :param filter_y: y deriv filter
+    :return:
+    """
 
     Ix = convolve2d(img, filter_x, mode='same', boundary='fill', fillvalue=0)
 
@@ -41,13 +54,12 @@ def compute_derivatives(img, filter_x, filter_y):
     return Ix, Iy
 
 
-def create_corner_response_matrix(img, sigma, k):
+def create_corner_response_matrix(img, sigma, k, thresh):
     """
-
-    :param Ix:
-    :param Iy:
+    :param img: np array for gray image
     :param sigma:
     :param k: empirical constant k = 0.04 to 0.06
+    :param thresh: threshold multiplier for average positive corner response used in filtering. thresh would be 0.75 * avg(cornerresp > 0)
     :return:
     """
     # Create Haar filters:
@@ -56,26 +68,10 @@ def create_corner_response_matrix(img, sigma, k):
     # Compute derivatives in x and y using Haar wavelets
     Ix, Iy = compute_derivatives(img, filter_x, filter_y)
 
-    plt.figure(1)
-    plt.subplot(1, 3, 1)
-    plt.imshow(img, cmap='gray', vmin=0, vmax=255)
-    plt.title("Original Image")
-
-    plt.subplot(1, 3, 2)
-    plt.imshow(Ix, cmap='gray', vmin=np.amin(Ix), vmax=np.amax(Ix))
-    plt.title("x-gradient")
-
-    plt.subplot(1, 3, 3)
-    plt.imshow(Iy, cmap='gray', vmin=np.amin(Iy), vmax=np.amax(Iy))
-    plt.title("y-gradient")
-
-    Ix = Ix - np.mean(Ix)
-    Iy = Iy - np.mean(Iy)
-
     # Given sigma, window w(x,y) is N x N where N is smallest odd integer greater than 5 * sigma
     win_size = int(5 * sigma)
 
-    if win_size % 2:
+    if win_size % 2 == 0:
         win_size += 1
     else:
         win_size += 2
@@ -89,118 +85,156 @@ def create_corner_response_matrix(img, sigma, k):
 
     Ix_Iy_win = convolve2d(Ix*Iy, win, mode='same', boundary='fill', fillvalue=0)  # w(x, y) * (Ix times Iy)
 
-    corner_resp = np.zeros_like(Ix_2_win)
 
-    h, w = corner_resp.shape
+    Ix_2_win = Ix_2_win/np.amax(Ix_2_win)
+    Iy_2_win = Iy_2_win/np.amax(Iy_2_win)
+    Ix_Iy_win = Ix_Iy_win/np.amax(Ix_Iy_win)
 
-    for r in range(h):
-        for c in range(w):
-            mat = np.array([[Ix_2_win[r, c], Ix_Iy_win[r, c]], [Ix_Iy_win[r, c], Iy_2_win[r, c]]])
-            det_corner = np.linalg.det(mat)
-            trace_corner = np.trace(mat)
+    det_corner = Ix_2_win * Iy_2_win - Ix_Iy_win**2
+    trace_corner = Ix_2_win + Iy_2_win
 
-            corner_resp[r, c] = det_corner - k * trace_corner**2
+    # Corner response
+    corner_resp = det_corner - k * (trace_corner**2)
 
     print("max corner resp : {}".format(np.amax(corner_resp)))
     print("min corner resp : {}".format(np.amin(corner_resp)))
 
     avg = np.mean(corner_resp[corner_resp > 0])
-    corner_resp[np.where(corner_resp < 0.5 * avg)] = 0
+    corner_resp[np.where(corner_resp < thresh * avg)] = 0
 
-    corner_pts = np.zeros((h, w))
+    corner_pts = np.zeros_like(corner_resp)
     avg = np.mean(corner_resp[corner_resp > 0])
-    corner_pts[np.where(corner_resp > 0.5 * avg)] = 255
-
-
-    plt.figure(2)
-    plt.subplot(1, 2, 1)
-    plt.imshow(img, cmap='gray', vmin=0, vmax=255)
-    plt.title("Original image")
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(corner_pts, cmap="gray", vmin=0, vmax=255)
-    plt.title("Corner response heat map")
-
-    plt.show()
+    corner_pts[np.where(corner_resp > thresh * avg)] = 255
 
     return corner_resp
 
 
-def plot_corners(img_clr, corner_resp):
+def plot_corners(img_clr, corners, save_img_path):
+    """
 
-    rows, cols = np.where(corner_resp != 0)
+    :param img_clr: np array color image BGR
+    :param corners: numcorners x 2 (col_1 is x, col_2 is y)
+    :param save_img_path: destination path to save image
+    :return:
+    """
+    save_img_path = save_img_path.format(corners.shape[0])
+    for i in range(corners.shape[0]):
+        cv2.circle(img_clr, (corners[i, 0], corners[i, 1]), radius=3, color=[0, 255, 0], thickness=-1)
+
+    cv2.imwrite(save_img_path, img_clr)
 
 
-    for i in range(rows.shape[0]):
-        cv2.circle(img_clr, (cols[i], rows[i]), radius=3, color=[255, 0, 0], thickness=-1)
-
-    cv2.imshow('Corners', img_clr)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-def local_non_maximal_suppression(kernel_size, corner_resp):
+def local_non_maximal_suppression(corner_resp, kernel_size=25):
+    """
+    Pass a window of kernel_size x kernel_size and retain the pixel if it is a local maximum
+    :param corner_resp: np array with Harris corner response
+    :param kernel_size: Window size for nms. Uses kernerl_size x kernel_size window to compute local maxima
+    :return:
+    """
+    # Making kernel_size odd
+    if kernel_size % 2 == 0:
+        kernel_size = kernel_size + 1
     pad = int(kernel_size/2)
 
+    # Pad for window
     corner_resp = np.pad(corner_resp, ((pad, pad), (pad, pad)), mode="constant")
+
+    nms_corner_resp = np.zeros_like(corner_resp)
 
     h, w = corner_resp.shape
 
     for i in range(pad, h-pad):
         for j in range(pad, w-pad):
-            sl = corner_resp[i - pad: i + pad + 1, j - pad: j + pad + 1]
-            max_Val = np.amax(sl)
-            sl[sl<max_Val] = 0
+            max_val = np.amax(corner_resp[i - pad: i + pad + 1, j - pad: j + pad + 1])
+            if corner_resp[i, j] == np.amax(corner_resp[i - pad: i + pad + 1, j - pad: j + pad + 1]):
+                nms_corner_resp[i, j] = max_val
 
-    corner_resp = corner_resp[pad:h-pad, pad:w-pad]
+    # remove padding
+    nms_corner_resp = nms_corner_resp[pad:h-pad, pad:w-pad]
 
-    return corner_resp
+    return nms_corner_resp
 
 
+def get_max_corners(corner_resp, max_no_corners=-1):
+    """
+    Function to extract coordinates of corners after Harris corner response processed
+    :param corner_resp: np array showing Harris corner response after post processing
+    :param retain: no of corners or points to retain. If -1, retains all.
+    :return:
+    """
 
+    r, c = np.where(corner_resp)
+    val = corner_resp[r, c]
 
+    corners_xy = np.vstack((c, r)).T  # num_corners x 2 (col_1 is x coord, col_2 is y_coord)
+
+    if max_no_corners > val.size:
+        ind = np.argsort(val)[::-1]
+    else:
+        ind = np.argsort(val)[::-1][:max_no_corners]
+
+    print("num corners before: {}".format(corners_xy.shape[0]))
+    corners_xy = corners_xy[ind]
+    print("num corners after: {}".format(corners_xy.shape[0]))
+
+    return corners_xy
 
 
 def adaptive_non_maximal_suppression():
     pass
 
 
-def run_main(img_path, sigma, k):
+def run_main(img_path, dest_img_path, nms_kernel_size, sigma, k=0.06, thresh=0.75, max_no_corners=-1):
 
+    # Load image
     img_bgr = load_image_gray(img_path)
     img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
 
-    corner_response = create_corner_response_matrix(img_gray, sigma, k)
-    kernel_size = 5
+    # Harris Corner response
+    corner_response = create_corner_response_matrix(img_gray, sigma, k, thresh)
 
-    corner_response = local_non_maximal_suppression(kernel_size, corner_response)
+    # Non Maximal Suppression
+    nms_corner_resp = local_non_maximal_suppression(corner_response, nms_kernel_size)
 
-    out = corner_response.copy()
-    out[out!=0] = 255
-    # plt.figure()
-    # plt.imshow(out, cmap="gray", vmin=0, vmax=255)
-    # plt.show()
-    plot_corners(img_bgr, corner_response)
+    # Retain "max_no_corners"
+    corners = get_max_corners(nms_corner_resp, max_no_corners)
 
-
-
-
-
-
-
-
-
-
+    # Plot corners on image
+    plot_corners(img_bgr, corners, dest_img_path)
 
 
 if __name__ == "__main__":
 
-    sigma = 0.7
-    k = 0.05
-    # img_path = "/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair1/1.jpg"
-    # img_path = "/Users/aartighatkesar/Desktop/5x5checkerboard.png"
-    img_path = "/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair2/truck2.jpg"
+    results_dir = os.path.join(os.getcwd(), 'results')
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+    else:
+        shutil.rmtree(results_dir)
 
-    run_main(img_path, sigma, k)
+    ##### pair ####
+    imgs = ["/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair1/1.jpg",
+                "/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair1/2.jpg",
+                "/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair2/truck1.jpg",
+                "/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair2/truck2.jpg"]
+
+    for img_path in imgs:
+        print("#########")
+        fldr, fname = os.path.split(img_path)
+        res_img = os.path.join(results_dir, 'res_' + fname.split('.')[0])
+        os.makedirs(res_img)
+
+        lst_sigma = [0.707, 1, 1.414, 2]
+        # lst_sigma = [0.707]
+        nms_kernel_size = 25
+        k = 0.06
+        thresh = 0.75
+        max_no_corners = 500
+
+        for sigma in lst_sigma:
+            dest_img_path = os.path.join(res_img, 'sigma_{}_no_c_{}.jpg'.format(sigma, '{}'))
+            run_main(img_path, dest_img_path, nms_kernel_size, sigma, k, thresh, max_no_corners)
+
+
 
 
 
