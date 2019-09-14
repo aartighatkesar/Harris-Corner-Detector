@@ -11,7 +11,7 @@ def load_image_gray(img_path):
     h, w, _ = img.shape
 
     if h > 600 or w > 800:
-        print("resizing image to 800 x 600")
+        print("resizing image to 600 x 800")
         img = cv2.resize(img, (600, 800))
 
     return img
