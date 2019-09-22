@@ -4,7 +4,7 @@ from scipy.signal import convolve2d
 import os
 import shutil
 
-def load_image_gray(img_path):
+def load_image(img_path):
 
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
 
@@ -170,8 +170,10 @@ def get_max_corners(corner_resp, max_no_corners=-1):
 
     if max_no_corners > val.size:
         ind = np.argsort(val)[::-1]
-    else:
+    elif max_no_corners > 0:
         ind = np.argsort(val)[::-1][:max_no_corners]
+    else:
+        ind = np.argsort(val)[::-1]
 
     print("num corners before: {}".format(corners_xy.shape[0]))
     corners_xy = corners_xy[ind]
@@ -185,9 +187,20 @@ def adaptive_non_maximal_suppression():
 
 
 def detect_corners(img_path, dest_img_path, nms_kernel_size, sigma, k=0.06, thresh=0.75, max_no_corners=-1):
+    """
+    MAIN function to call to get corners arranged as x, y crd
+    :param img_path: full path to image whose corners to be detected
+    :param dest_img_path: if empty, then does not plot and save result image, else give full path
+    :param nms_kernel_size: kernel size to be used during non maximal suppression
+    :param sigma: scale
+    :param k: empirical constant when computing Harris corner response. Refer to paper. Usually 0.04 ~ 0.06
+    :param thresh: threshold ratio i.e corners whose corner response is less than thresh*mean(corner_response) are ignored
+    :param max_no_corners: Maximum no of corners to retain. If -1, then all are retained
+    :return: corners: nd array N x 2 arranged as x, y coordinate
+    """
 
     # Load image
-    img_bgr = load_image_gray(img_path)
+    img_bgr = load_image(img_path)
     img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
 
     # Harris Corner response
@@ -214,6 +227,7 @@ if __name__ == "__main__":
     else:
         shutil.rmtree(results_dir)
 
+    # Process all images at once to generate images with corners
     ##### pair ####
     imgs = ["/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair1/1.jpg",
                 "/Users/aartighatkesar/Documents/Harris-Corner-Detector/input_imgs/pair1/2.jpg",
