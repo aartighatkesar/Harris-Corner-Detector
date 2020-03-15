@@ -44,7 +44,7 @@ python correspondence_measures.py
 
 <img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/input_imgs/pair1/1.jpg" alt="1.jpg" width="400" height="300" />  
 
-<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/input_imgs/pair2/1.jpg" alt="1.jpg" width="400" height="300" />  
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/input_imgs/pair2/truck1.jpg" alt="1.jpg" width="400" height="300" />  
 
 ###### Intermediate results
 
