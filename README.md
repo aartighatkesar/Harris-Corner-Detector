@@ -40,11 +40,11 @@ python correspondence_measures.py
 - [Input set 1 - click click](./input_imgs)
 - [Results for Input set 1 - more clicks](./results)
     
-###### Inputs
+##### Inputs
 
 <img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/input_imgs/pair1/1.jpg" alt="1.jpg" width="400" height="300" />  
 
-###### Corners for various values of Smoothing
+##### Corners for various values of Smoothing
 
 _Sigma = 0.707 : Num of corners detected = 368_
 <br/>
@@ -70,20 +70,20 @@ _Sigma = 2 : Num of corners detected = 225_
 
 _All corner points correspondence. Sigma = 2.0. Metric : Normalized Cross Correlation_
 <br/>
-<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_all/1_2_sig_2_m_ncc.jpg" alt="1.jpg" width="800" height="500" />  
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_all/1_2_sig_2_m_ncc.jpg" alt="1.jpg" width="1000" height="500" />  
 <br/>
 _Showing top 100 corner points correspondence. Sigma = 2.0. Metric : Normalized Cross Correlation_
 <br/>
-<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_top_100/1_2_sig_2_m_ncc.jpg" alt="1.jpg" width="800" height="500" />  
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_top_100/1_2_sig_2_m_ncc.jpg" alt="1.jpg" width="1000" height="500" />  
 <br/>
 <br/>
 _All corner points correspondence. Sigma = 2.0. Metric : Sum of Squared Differences_
 <br/>
-<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_all/1_2_sig_2_m_ssd.jpg" alt="1.jpg" width="400" height="300" />  
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_all/1_2_sig_2_m_ssd.jpg" alt="1.jpg" width="1000" height="500" />  
 <br/>
 _Showing top 100 corner points correspondence. Sigma = 2.0. Metric : Sum of Squared Differences_
 <br/>
-<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_top_100/1_2_sig_2_m_ssd.jpg" alt="1.jpg" width="400" height="300" />  
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_top_100/1_2_sig_2_m_ssd.jpg" alt="1.jpg" width="1000" height="500" />  
 <br/>
 
 
