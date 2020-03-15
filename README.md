@@ -44,69 +44,47 @@ python correspondence_measures.py
 
 <img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/input_imgs/pair1/1.jpg" alt="1.jpg" width="400" height="300" />  
 
-<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/input_imgs/pair2/truck1.jpg" alt="1.jpg" width="400" height="300" />  
+###### Corners for various values of Smoothing
 
-###### Intermediate results
+_Sigma = 0.707 : Num of corners detected = 368_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/res_1/sigma_0.707_no_c_368.jpg" alt="1.jpg" width="400" height="300" />  
+<br/>
+<br/>
+_Sigma = 1.0 : Num of corners detected = 320_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/res_1/sigma_1_no_c_320.jpg" alt="1.jpg" width="400" height="300" />  
+<br/>
+<br/>
+_Sigma = 1.414 : Num of corners detected = 282_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/res_1/sigma_1.414_no_c_283.jpg" alt="1.jpg" width="400" height="300" />  
+<br/>
+<br/>
+_Sigma = 2 : Num of corners detected = 225_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/res_1/sigma_2_no_c_225.jpg" alt="1.jpg" width="400" height="300" />  
+<br/>
 
-* All SIFT feature correspondence for img 2 and 3
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p2/results/2_3_sift_corr.jpg" width="468" height="416" />
+#### Correspondence
 
-
-* Inliers from RANSAC for img 2 and 3
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p2/results/2_3_inliers.jpg" width="468" height="416" />
-
-* Outliers from RANSAC for img 2 and 3
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p2/results/2_3outliers.jpg" width="468" height="416" />
-       
-
-Go [here](./input/p2/results) for more intermediate results for all image pairs
-
-#### Final Image Mosaic
-
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p2/results/panorama_4.jpg" width="602" height="482" />
-
-        
-
-- [Input set 2 - click click](./input/p4)
-    - [Results for Input set 2 - more clicks](./input/p4/results)
-    
-###### Inputs
-- 1.jpg
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/1.jpg" alt="1.jpg" width="416" height="312" />
-
-- 2.jpg
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/2.jpg" alt="2.jpg" width="416" height="312" /> 
-
-- 3.jpg
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/3.jpg" alt="3.jpg" width="416" height="312" /> 
-
-- 4.jpg
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/4.jpg" alt="4.jpg" width="416" height="312" />
-
-- 5.jpg
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/5.jpg" alt="5.jpg" width="416" height="312" />
-
-
-###### Intermediate results
-
-* All SIFT feature correspondence for img 2 and 3
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/results/2_3_sift_corr.jpg" width="832" height="312" />
-
-
-* Inliers from RANSAC for img 2 and 3
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/results/2_3_inliers.jpg" width="832" height="312" />
-
-* Outliers from RANSAC for img 2 and 3
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/results/2_3outliers.jpg" width="832" height="312" />
-       
-
-Go [here](./input/p4/results) for more intermediate results for all image pairs
-
-#### Final Image Mosaic
-
-<img src="https://github.com/aartighatkesar/Image-Mosaicing/blob/master/input/p4/results/panorama_4.jpg" width="720" height="390" />
-
-
+_All corner points correspondence. Sigma = 2.0. Metric : Normalized Cross Correlation_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_all/1_2_sig_2_m_ncc.jpg" alt="1.jpg" width="800" height="500" />  
+<br/>
+_Showing top 100 corner points correspondence. Sigma = 2.0. Metric : Normalized Cross Correlation_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_top_100/1_2_sig_2_m_ncc.jpg" alt="1.jpg" width="800" height="500" />  
+<br/>
+<br/>
+_All corner points correspondence. Sigma = 2.0. Metric : Sum of Squared Differences_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_all/1_2_sig_2_m_ssd.jpg" alt="1.jpg" width="400" height="300" />  
+<br/>
+_Showing top 100 corner points correspondence. Sigma = 2.0. Metric : Sum of Squared Differences_
+<br/>
+<img src="https://github.com/aartighatkesar/Harris-Corner-Detector/blob/work-in-progress/results/correspondence_top_100/1_2_sig_2_m_ssd.jpg" alt="1.jpg" width="400" height="300" />  
+<br/>
 
 
 
